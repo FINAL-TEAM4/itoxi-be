@@ -18,20 +18,17 @@ public class RedisConfig {
     @Value("${spring.redis.port}")
     private int redisPort;
 
-    @Value("${spring.redis.password}")
-    private String redisPassword;
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration redisConfig = new RedisStandaloneConfiguration(redisHost, redisPort);
-        redisConfig.setPassword(redisPassword);
         return new LettuceConnectionFactory(redisConfig);
     }
     
     @Bean
     public RedisTemplate<String, Object> redisTemplate() {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-        redisTemplate.setEnableTransactionSupport(true);
+//        redisTemplate.setEnableTransactionSupport(true);
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new StringRedisSerializer());
         redisTemplate.setConnectionFactory(redisConnectionFactory());
