@@ -56,7 +56,7 @@ public class DailyChallengeRepositoryImpl implements DailyChallengeRepositoryCus
 
     @Override
     public DailyChallengeDetailResponse findDetailChallenge(
-            DailyChallenge challenge, Member loginMember
+            Long dailyChallengeId, Member loginMember
     ) {
         return queryFactory
                 .select(Projections.constructor(DailyChallengeDetailResponse.class,
@@ -68,14 +68,14 @@ public class DailyChallengeRepositoryImpl implements DailyChallengeRepositoryCus
                 .on(dailyChallenge.id.eq(dailyAuth.dailyChallenge.id)
                         .and(memberEq(dailyAuth.member, loginMember))
                         .and(todayEq(dailyAuth.updatedAt)))
-                .where(dailyChallenge.id.eq(challenge.getId())
+                .where(dailyChallenge.id.eq(dailyChallengeId)
                         .and(dailyChallenge.challengeStatus.eq(ChallengeStatus.OPENED)))
                 .fetchOne();
     }
 
     @Override
     public Page<DailyAuthImageResponse> findAllAuthList(
-            DailyChallenge dailyChallenge, Pageable pageable) {
+            Long dailyChallengeId, Pageable pageable) {
 
         List<DailyAuthImageResponse> content = queryFactory
                 .select(Projections.constructor(DailyAuthImageResponse.class,
@@ -84,7 +84,7 @@ public class DailyChallengeRepositoryImpl implements DailyChallengeRepositoryCus
                 .from(dailyAuth)
                 .join(member) // cross join 방지
                 .on(dailyAuth.member.id.eq(member.id))
-                .where(dailyAuth.dailyChallenge.id.eq(dailyChallenge.getId())
+                .where(dailyAuth.dailyChallenge.id.eq(dailyChallengeId)
                         .and(todayEq(dailyAuth.updatedAt)))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -93,7 +93,7 @@ public class DailyChallengeRepositoryImpl implements DailyChallengeRepositoryCus
         JPAQuery<Long> countQuery = queryFactory
                 .select(dailyAuth.count())
                 .from(dailyAuth)
-                .where(dailyAuth.dailyChallenge.id.eq(dailyChallenge.getId())
+                .where(dailyAuth.dailyChallenge.id.eq(dailyChallengeId)
                         .and(todayEq(dailyAuth.updatedAt)));
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
@@ -105,7 +105,7 @@ public class DailyChallengeRepositoryImpl implements DailyChallengeRepositoryCus
         return loginMember != null ? qMember.id.eq(loginMember.getId()) : null;
     }
 
-    // LocaDateTime에서 시간 부분을 제외하고 날짜만 비교
+    // LocalDateTime 에서 시간 부분을 제외하고 날짜만 비교
     private BooleanExpression todayEq(DateTimePath<LocalDateTime> dailyAuth) {
         String todayStr = querydslFormatter.nowDateTimeToStr();
         StringExpression authDate = querydslFormatter.formatter(dailyAuth);

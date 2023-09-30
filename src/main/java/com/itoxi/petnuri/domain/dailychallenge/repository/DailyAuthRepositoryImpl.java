@@ -26,12 +26,12 @@ public class DailyAuthRepositoryImpl implements DailyAuthRepositoryCustom {
     QDailyAuth dailyAuth = QDailyAuth.dailyAuth;
 
     @Override
-    public boolean dupePostCheck(Member loginMember, DailyChallenge dailyChallenge) {
+    public boolean dupePostCheck(Member loginMember, Long dailyChallengeId) {
 
         Member result = queryFactory
                 .select(dailyAuth.member)
                 .from(dailyAuth)
-                .where(dailyAuth.id.eq(dailyChallenge.getId())
+                .where(dailyAuth.id.eq(dailyChallengeId)
                         .and(dailyAuth.member.id.eq(loginMember.getId()))
                         .and(todayEq(dailyAuth.updatedAt)))
                 .fetchOne();

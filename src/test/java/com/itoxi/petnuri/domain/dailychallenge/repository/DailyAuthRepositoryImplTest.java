@@ -8,10 +8,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,14 +41,15 @@ class DailyAuthRepositoryImplTest {
         memberRepository.save(member1);
         memberRepository.save(member2);
 
-        DailyChallenge challenge1 = dailyChallengeRepository.findById(1L).orElseThrow(NoSuchElementException::new);
+        Long challengeId = 1L;
+        DailyChallenge challenge1 = dailyChallengeRepository.findById(challengeId).orElseThrow(NoSuchElementException::new);
 
-        DailyAuth auth1 = DailyAuth.createDailyAuth(member1, challenge1, "https://test.url/test.jpng");
+        DailyAuth auth1 = DailyAuth.toEntity(member1, challenge1, "https://test.url/test.jpng");
         dailyAuthRepository.save(auth1);
 
         // when
-        boolean result1 = dailyAuthRepository.dupePostCheck(member1, challenge1);
-        boolean result2 = dailyAuthRepository.dupePostCheck(member2, challenge1);
+        boolean result1 = dailyAuthRepository.dupePostCheck(member1, challengeId);
+        boolean result2 = dailyAuthRepository.dupePostCheck(member2, challengeId);
         System.out.println("테스트 : result = " + result1);
         System.out.println("테스트 : result = " + result2);
 
@@ -59,16 +58,4 @@ class DailyAuthRepositoryImplTest {
         assertThat(result2).isFalse();
     }
 
-    @Test
-    public void authImagePage_test() throws Exception {
-        // given
-        Long challengeId = 1L;
-        DailyChallenge dailyChallenge = dailyChallengeRepository.findById(challengeId)
-                .orElseThrow(NoSuchElementException::new);
-//        Page<List<DailyAuth>> result = dailyAuthRepository.findAllByDailyChallengeId(dailyChallenge.getId());
-
-        // when
-
-        // then
-    }
 }

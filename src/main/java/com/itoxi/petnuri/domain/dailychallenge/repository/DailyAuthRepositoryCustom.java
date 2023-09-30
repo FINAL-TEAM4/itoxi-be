@@ -10,5 +10,5 @@ import com.itoxi.petnuri.domain.member.entity.Member;
  */
 public interface DailyAuthRepositoryCustom {
 
-    boolean dupePostCheck(Member member, DailyChallenge dailyChallenge);
+    boolean dupePostCheck(Member member, Long dailyChallengeId);
 }

@@ -50,7 +50,7 @@ public class DailyAuth extends BaseTimeEntity {
     @Column(nullable = false)
     private String imageUrl;  // 인증샷 S3 url
 
-    public static DailyAuth createDailyAuth(
+    public static DailyAuth toEntity(
             Member member, DailyChallenge dailyChallenge, String imageUrl
     ) {
         return DailyAuth.builder()
