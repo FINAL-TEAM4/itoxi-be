@@ -6,6 +6,7 @@ import com.itoxi.petnuri.domain.dailychallenge.dto.response.DailyChallengeDetail
 import com.itoxi.petnuri.domain.dailychallenge.dto.response.DailyChallengeListResponse;
 import com.itoxi.petnuri.domain.dailychallenge.entity.DailyChallenge;
 import com.itoxi.petnuri.domain.dailychallenge.repository.DailyChallengeRepository;
+import com.itoxi.petnuri.domain.dailychallenge.type.ChallengeStatus;
 import com.itoxi.petnuri.domain.member.entity.Member;
 import com.itoxi.petnuri.global.common.exception.Exception400;
 import com.itoxi.petnuri.global.s3.service.AmazonS3Service;
@@ -56,15 +57,16 @@ public class DailyChallengeService {
             DailyChallengeRequest request, MultipartFile thumbnail, MultipartFile banner
     ) {
         String thumbnailUrl = amazonS3Service.uploadThumbnailImage(thumbnail);
-        String bannerUrl = amazonS3Service.uploadThumbnailImage(banner);
+        String bannerUrl = amazonS3Service.uploadBannerImage(banner);
         DailyChallenge dailyChallenge = DailyChallenge.toEntity(request, thumbnailUrl, bannerUrl);
         dailyChallengeRepository.save(dailyChallenge);
     }
 
     private void isRightChallengeId(Long challengeId) {
-        DailyChallenge dailyChallenge = dailyChallengeRepository.findById(challengeId)
-                .orElseThrow(() -> new Exception400(NOT_FOUND_DAILY_CHALLENGE_ID));
+        if (!dailyChallengeRepository.existsByIdAndChallengeStatus(
+                challengeId, ChallengeStatus.OPENED)) {
+            throw new Exception400(NOT_FOUND_DAILY_CHALLENGE_ID);
+        }
     }
 
 }
-

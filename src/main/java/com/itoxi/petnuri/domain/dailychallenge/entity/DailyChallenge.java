@@ -1,8 +1,11 @@
 package com.itoxi.petnuri.domain.dailychallenge.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.itoxi.petnuri.domain.dailychallenge.dto.request.DailyChallengeRequest;
 import com.itoxi.petnuri.domain.dailychallenge.type.ChallengeStatus;
 import com.itoxi.petnuri.global.common.BaseTimeEntity;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import javax.persistence.*;
 
@@ -55,12 +58,27 @@ public class DailyChallenge extends BaseTimeEntity {
     @Enumerated(value = EnumType.STRING)
     private ChallengeStatus challengeStatus = ChallengeStatus.READY;
 
-    @Column(nullable = false)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss", timezone = "Asia/Seoul")
-    private LocalDateTime startDate;    // 챌린지 시작 일자 : 2023-09-12 00:00:00
+    @Column(name = "start_date", nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate startDate;    // 챌린지 시작 일자 : 2023-09-12 00:00:00
 
-    @Column(nullable = false)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss", timezone = "Asia/Seoul")
-    private LocalDateTime endDate;      // 챌린지 종료 일자 : 9999-12-31 23:59:59
+    @Column(name = "end_date",  nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate endDate;      // 챌린지 종료 일자 : 9999-12-31 23:59:59
+
+    public static DailyChallenge toEntity(DailyChallengeRequest request, String thumbnail, String banner) {
+        return DailyChallenge.builder()
+                .title(request.getTitle())
+                .subTitle(request.getSubTitle())
+                .authMethod(request.getAuthMethod())
+                .payment(request.getPayment())
+                .paymentMethod(request.getPaymentMethod())
+                .thumbnail(thumbnail)
+                .banner(banner)
+                .challengeStatus(ChallengeStatus.READY)
+                .startDate(request.getStartDate())
+                .endDate(LocalDate.of(9999,12,31))
+                .build();
+    }
 
 }
