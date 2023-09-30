@@ -6,7 +6,6 @@ import com.itoxi.petnuri.domain.dailychallenge.dto.response.DailyChallengeListRe
 import com.itoxi.petnuri.domain.dailychallenge.entity.DailyAuth;
 import com.itoxi.petnuri.domain.dailychallenge.entity.DailyChallenge;
 import com.itoxi.petnuri.domain.dailychallenge.type.ChallengeStatus;
-import com.itoxi.petnuri.domain.member.entity.Member;
 import com.itoxi.petnuri.domain.member.repository.MemberRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -83,7 +81,6 @@ class DailyChallengeRepositoryImplTest {
         DailyAuth auth1 = DailyAuth.toEntity(member1, challenge1, "https://test.url/test.jpng");
         DailyAuth auth2 = DailyAuth.toEntity(member1, challenge2, "https://test.url/test.jpng");
         DailyAuth auth3 = DailyAuth.toEntity(member1, challenge3, "https://test.url/test.jpng");
-        dailyAuthRepository.save(auth1);
         dailyAuthRepository.save(auth2);
         dailyAuthRepository.save(auth3);
 
@@ -130,7 +127,6 @@ class DailyChallengeRepositoryImplTest {
         // when
         DailyChallengeDetailResponse response1 = dailyChallengeRepository.findDetailChallenge(challengeId1, member1);
         DailyChallengeDetailResponse response2 = dailyChallengeRepository.findDetailChallenge(challengeId1, member2);
-
         // then
         assertThat(response1.getStatus()).isTrue();
         assertThat(response2.getStatus()).isFalse();
@@ -153,14 +149,12 @@ class DailyChallengeRepositoryImplTest {
         DailyAuth auth1 = DailyAuth.toEntity(member1, challenge1, "https://test.url/test.jpng");
         DailyAuth auth2 = DailyAuth.toEntity(member2, challenge1, "https://test.url/test.jpng");
         DailyAuth auth3 = DailyAuth.toEntity(member3, challenge1, "https://test.url/test.jpng");
-        dailyAuthRepository.save(auth1);
         dailyAuthRepository.save(auth2);
         dailyAuthRepository.save(auth3);
 
         // when
         Pageable pageable = PageRequest.of(0, 5);
         Page<DailyAuthImageResponse> responses = dailyChallengeRepository.findAllAuthList(challengeId1, pageable);
-
         for (DailyAuthImageResponse respons : responses) {
             System.out.println("테스트 : challengeId =  " + respons.getChallengeId());
             System.out.println("테스트 : memberId = " + respons.getMemberId());

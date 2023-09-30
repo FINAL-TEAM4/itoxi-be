@@ -36,7 +36,6 @@ public class DailyAuthService {
 
         // 1. 챌린지 id 검증
         DailyChallenge dailyChallenge = dailyChallengeRepository.findById(dailyChallengeId)
-                .orElseThrow(() -> new Exception400(NOT_FOUND_DAILY_CHALLENGE_ID));
 
         // 2. 이미 인증글을 작성했다면 예외 던지기
         isDupeAuthMember(loginMember, dailyChallengeId);
@@ -47,7 +46,6 @@ public class DailyAuthService {
         // 4. 인증글 저장
         // 필요 데이터 : 1) 인증 사진 url, 2) 데일리 챌린지 엔티티 , 3) 유저 엔티티
         DailyAuth dailyAuth = DailyAuth.toEntity(loginMember, dailyChallenge, awsUrl);
-        dailyAuthRepository.save(dailyAuth);
 
         // 5. 회원의 포인트 적립을 위한 정보를 담아서 리턴
         return DailyAuthDto.of(dailyAuth, dailyChallenge);
@@ -56,7 +54,6 @@ public class DailyAuthService {
     private void isDupeAuthMember(Member loginMember, Long dailyChallengeId) {
         // 날짜 체크를 우선 query에서 비교하도록 구현하였음.
         if (dailyAuthRepository.dupePostCheck(loginMember, dailyChallengeId)) {
-            throw new Exception400(ErrorCode.DUPE_POST_MEMBER);
         }
     }
 

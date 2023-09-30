@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,7 +49,6 @@ class DailyAuthRepositoryImplTest {
         // when
         boolean result1 = dailyAuthRepository.dupePostCheck(member1, challengeId);
         boolean result2 = dailyAuthRepository.dupePostCheck(member2, challengeId);
-        System.out.println("테스트 : result = " + result1);
         System.out.println("테스트 : result = " + result2);
 
         // then
