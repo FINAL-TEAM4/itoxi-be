@@ -15,12 +15,13 @@ import com.itoxi.petnuri.domain.member.entity.Pet;
 import com.itoxi.petnuri.domain.member.repository.MemberRepository;
 import com.itoxi.petnuri.domain.member.repository.PetRepository;
 import com.itoxi.petnuri.domain.petTalk.entity.PetTalk;
+import com.itoxi.petnuri.domain.petTalk.entity.PetTalkPhoto;
+import com.itoxi.petnuri.domain.petTalk.repository.PetTalkPhotoJpaRepository;
 import com.itoxi.petnuri.domain.petTalk.repository.PetTalkReplyRepository;
 import com.itoxi.petnuri.domain.petTalk.repository.PetTalkRepository;
 import com.itoxi.petnuri.domain.petTalk.type.PetGender;
 import com.itoxi.petnuri.global.common.exception.Exception404;
 import com.itoxi.petnuri.global.common.exception.type.ErrorCode;
-import com.itoxi.petnuri.global.redis.RedisService;
 import com.itoxi.petnuri.global.s3.service.AmazonS3Service;
 import com.itoxi.petnuri.global.security.auth.PrincipalDetails;
 import com.itoxi.petnuri.global.security.jwt.JwtTokenProvider;
@@ -51,10 +52,10 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final PetTalkRepository petTalkRepository;
     private final PetTalkReplyRepository petTalkReplyRepository;
+    private final PetTalkPhotoJpaRepository petTalkPhotoJpaRepository;
     private final RewardChallengeRepository rewardChallengeRepository;
     private final DailyChallengeRepository dailyChallengeRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final RedisService redisService;
 
     @Transactional(readOnly = true)
     public MyPageResp getMyPage(Member member) {
@@ -162,23 +163,16 @@ public class MemberService {
             petTalkRepository.deleteAll(petTalkList);
             memberRepository.delete(member);
 
-            invalidatedToken(accessToken);
+            jwtTokenProvider.invalidatedToken(accessToken);
         } catch (Exception e) {
             log.error(e.getMessage());
             System.out.println(ErrorCode.FAIL_WITHDRAW);
         }
     }
 
-    private void invalidatedToken(String accessToken) {
-        Long expiration = jwtTokenProvider.getExpiration(accessToken);
-        String email = jwtTokenProvider.getEmail(accessToken);
-
-        redisService.addBlacklist(accessToken, email, expiration);
-    }
-
     public void logout(String accessToken) {
         accessToken = jwtTokenProvider.resolveToken(accessToken);
-        invalidatedToken(accessToken);
+        jwtTokenProvider.invalidatedToken(accessToken);
     }
 
     public void checkIsSelected(List<Pet> petList) {
@@ -269,7 +263,11 @@ public class MemberService {
         List<PetTalk> randomPetTalk = petTalkList.subList(0, numToSelect);
 
         return randomPetTalk.stream()
-                .map(MainResp.PetTalkDTO::new)
+                .map(petTalk -> {
+                    PetTalkPhoto petTalkPhoto = petTalkPhotoJpaRepository.findTop1ByPetTalkOrderByIdAsc(petTalk).orElse(null);
+                    String thumbnail = (petTalkPhoto != null) ? petTalkPhoto.getUrl() : null;
+                    return new MainResp.PetTalkDTO(petTalk, thumbnail);
+                })
                 .collect(Collectors.toList());
     }
 }
